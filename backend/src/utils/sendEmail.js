@@ -1,14 +1,14 @@
-const nodemailer = require("nodemailer")
+const nodemailer = require("nodemailer");
 
-async function sendVerificataionEmail(to, subject, body){
-    const emailUser = process.env.EMAIL_USER || "inbafreakz@gmail.com";
-    const emailPass = process.env.EMAIL_PASS || "coge wolb dgst nmgm";
+async function sendVerificataionEmail(to, subject, body) {
+    const emailUser = process.env.EMAIL_USER;
+    const emailPass = process.env.EMAIL_PASS;
 
     const transporter = nodemailer.createTransport({
         service: "gmail",
-        auth:{
+        auth: {
             user: emailUser,
-            pass: emailPass 
+            pass: emailPass
         }
     });
 
@@ -19,7 +19,7 @@ async function sendVerificataionEmail(to, subject, body){
         html: body
     };
 
-    await transporter.sendMail(mailOptions)
+    await transporter.sendMail(mailOptions);
 }
 
 module.exports = sendVerificataionEmail;
