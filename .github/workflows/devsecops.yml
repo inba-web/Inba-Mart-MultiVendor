@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   security:
     name: Security Scan
@@ -64,3 +68,37 @@ jobs:
           target: "http://inba-mart-alb-558020297.ap-south-1.elb.amazonaws.com"
           allow_issue_writing: false
           artifact_name: zap-baseline-report
+
+  build-and-push:
+    name: Build and Push to ECR
+    runs-on: ubuntu-latest
+    needs: [security, dast]
+
+    # Only push/deploy from the main branch.
+    # Pull requests should run security/DAST but must not push images.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::149146127980:role/GitHubActions-InbaMart-Deploy
+          aws-region: ap-south-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ steps.login-ecr.outputs.registry }}/inba-mart-backend:${{ github.sha }} ./backend
+          docker tag ${{ steps.login-ecr.outputs.registry }}/inba-mart-backend:${{ github.sha }} \
+            ${{ steps.login-ecr.outputs.registry }}/inba-mart-backend:latest
+
+      - name: Push Docker image to ECR
+        run: |
+          docker push ${{ steps.login-ecr.outputs.registry }}/inba-mart-backend:${{ github.sha }}
+          docker push ${{ steps.login-ecr.outputs.registry }}/inba-mart-backend:latest
