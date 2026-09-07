@@ -29,3 +29,8 @@ jobs:
       - name: Dependency audit
         working-directory: backend
         run: npm audit --audit-level=high
+        
+      - name: Semgrep SAST
+        uses: semgrep/semgrep-action@v1
+        with:
+          config: p/default
