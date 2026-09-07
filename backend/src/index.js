@@ -9,6 +9,7 @@ const adminMiddleware = require("./middlewares/adminMiddleware");
 const app = express();
 app.use(helmet());
 app.use(mongoSanitize());
+
 const allowedOrigins = [];
 if (process.env.NODE_ENV !== "production") {
   allowedOrigins.push("http://localhost:5173");
