@@ -1,4 +1,3 @@
-# ---------- Build stage ----------
 FROM node:22-alpine AS builder
 
 RUN apk update && apk upgrade
@@ -12,12 +11,10 @@ RUN npm ci --omit=dev
 COPY src ./src
 
 
-# ---------- Production stage ----------
 FROM node:22-alpine AS production
 
 RUN apk update && apk upgrade
 
-# Remove npm and its bundled dependencies from the runtime image
 RUN rm -rf /usr/local/lib/node_modules/npm \
     /usr/local/bin/npm \
     /usr/local/bin/npx
