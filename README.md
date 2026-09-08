@@ -44,21 +44,12 @@ Inba Mart connects customers, sellers, and platform administrators in a secure m
 - 🛡️ **DevSecOps:** Automated SAST (`Semgrep`), Secret Scanning (`Gitleaks`), Container Auditing (`Trivy`), DAST (`OWASP ZAP`), and OIDC authentication.
 - ☁️ **AWS Cloud:** Multi-AZ private VPC subnets, ALB load balancing, EC2 Auto Scaling, S3 VPC Endpoint, Secrets Manager, and SSM Session Manager.
 
----
-
-## 🏗️ System Architecture (Cloud + DevSecOps)
-
-Below is the complete enterprise end-to-end architecture combining application tiers, CI/CD security gates, AWS network isolation, container registry, and cloud database integration.
-
-![Enterprise End-to-End Architecture](docs/images/end-to-end-architecture.png)
-
----
 
 ## ☁️ AWS Cloud Architecture
 
 Hosted in **AWS Mumbai (`ap-south-1`)** across 2 Availability Zones (`AZ-A` & `AZ-B`) with strict private subnet isolation.
 
-![AWS Cloud Architecture](docs/images/aws-cloud-architecture.png)
+![AWS Cloud Architecture](docs/images/cloud_architecture.jpeg)
 
 ### 🔑 Key Infrastructure Components
 - 🌐 **VPC (`10.0.0.0/16`):** Public subnets host ALB & NAT Gateways; private subnets host EC2 application nodes.
@@ -73,7 +64,7 @@ Hosted in **AWS Mumbai (`ap-south-1`)** across 2 Availability Zones (`AZ-A` & `A
 
 Automated pipeline in `.github/workflows/devsecops.yml` running security checks before pushing container images or triggering ASG updates.
 
-![DevSecOps CI/CD Pipeline](docs/images/devsecops-pipeline-architecture.png)
+![DevSecOps CI/CD Pipeline](docs/images/devsecops_architecture.jpeg)
 
 ### 🔒 Security Gates
 1. 📦 `npm audit`: Dependency vulnerability audit (`--audit-level=high`).
@@ -85,13 +76,24 @@ Automated pipeline in `.github/workflows/devsecops.yml` running security checks 
 
 ---
 
+
+---
+
+## 🏗️ System Architecture (Cloud + DevSecOps)
+
+Below is the complete enterprise end-to-end architecture combining application tiers, CI/CD security gates, AWS network isolation, container registry, and cloud database integration.
+
+![Enterprise End-to-End Architecture](docs/images/cloud+devsecops_architecture.jpeg)
+
+---
+
 ## 🎨 Application Interfaces
 
 ### 🛍️ Storefront Hero & Product Discovery
-![Storefront Hero Banner](docs/images/storefront-hero.png)
+![Storefront Hero Banner](docs/images/inba_mart_home_1.jpeg)
 
 ### 🏷️ Deals of the Day & Category Showcase
-![Storefront Grid and Deals](docs/images/storefront-deals.png)
+![Storefront Grid and Deals](docs/images/inba_mart_home_2.jpeg)
 
 ---
 
