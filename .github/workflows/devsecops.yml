@@ -121,8 +121,24 @@ jobs:
           role-to-assume: arn:aws:iam::149146127980:role/GitHubActions-InbaMart-Deploy
           aws-region: ap-south-1
 
+      - name: Check for Existing ASG Instance Refresh
+        id: check-refresh
+        run: |
+          REFRESH_ID=$(aws autoscaling describe-instance-refreshes \
+            --auto-scaling-group-name inba-mart-backend-asg \
+            --query "InstanceRefreshes[?Status=='Pending' || Status=='InProgress' || Status=='Baking' || Status=='Cancelling' || Status=='RollbackInProgress'] | [0].InstanceRefreshId" \
+            --output text)
+
+          if [ "$REFRESH_ID" = "None" ] || [ -z "$REFRESH_ID" ]; then
+            echo "No active instance refresh found."
+            echo "REFRESH_ID=" >> "$GITHUB_ENV"
+          else
+            echo "Existing instance refresh found: $REFRESH_ID"
+            echo "REFRESH_ID=$REFRESH_ID" >> "$GITHUB_ENV"
+          fi
+
       - name: Start ASG Instance Refresh
-        id: refresh
+        if: env.REFRESH_ID == ''
         run: |
           REFRESH_ID=$(aws autoscaling start-instance-refresh \
             --auto-scaling-group-name inba-mart-backend-asg \
@@ -166,3 +182,4 @@ jobs:
                 ;;
             esac
           done
+          
