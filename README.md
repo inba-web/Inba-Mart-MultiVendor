@@ -1,224 +1,232 @@
-# Inba Mart - Enterprise Multi-Vendor E-Commerce Platform
+# 🛒 Inba Mart
 
-<p align="center">
-A scalable MERN-based marketplace platform enabling customers, sellers, and administrators 
-to interact through a secure role-based commerce ecosystem.
-</p>
+### Multi-Vendor E-Commerce Platform with AWS Cloud Architecture & DevSecOps
 
-## 🚀 Overview
+[![Node.js](https://img.shields.io/badge/Node.js-v22-green.svg)](https://nodejs.org/)
+[![Express.js](https://img.shields.io/badge/Express-v5-000000.svg)](https://expressjs.com/)
+[![React](https://img.shields.io/badge/React-v19-61DAFB.svg)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-v5-3178C6.svg)](https://www.typescriptlang.org/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248.svg)](https://www.mongodb.com/cloud/atlas)
+[![Docker](https://img.shields.io/badge/Docker-Multi--Stage-2496ED.svg)](https://www.docker.com/)
+[![AWS](https://img.shields.io/badge/AWS-Cloud%20Architecture-FF9900.svg)](https://aws.amazon.com/)
+[![GitHub Actions](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-2088FF.svg)](https://github.com/features/actions)
+[![DevSecOps](https://img.shields.io/badge/Security-Semgrep%20%7C%20Trivy%20%7C%20Gitleaks%20%7C%20ZAP-red.svg)](#️-devsecops-cicd-pipeline)
 
-Inba Mart is a production-oriented multi-vendor e-commerce platform inspired by modern marketplaces like Amazon, Flipkart, and Meesho.
-
-The platform provides:
-
-- Customer shopping experience with product discovery, cart, wishlist, and order tracking
-- Seller marketplace with inventory management and revenue tracking
-- Admin control center for vendor approvals, coupons, and platform governance
-- Secure authentication with JWT, OTP-based password recovery, and RBAC authorization
-- Cloud-based media storage and online payment processing
+> **Inba Mart** is a production-grade multi-vendor e-commerce platform featuring high-availability AWS cloud infrastructure, an automated DevSecOps CI/CD delivery pipeline, and a role-based commerce engine.
 
 ---
 
-## 1. System Architecture
+## 📑 Table of Contents
 
-Inba Mart utilizes a modular Model-View-Controller (MVC) pattern on the backend and a structured component-driven architecture on the frontend. The platform connects via RESTful APIs with strict boundaries for data flow.
-
-```
-                    ┌─────────────────────────┐
-                    │      React Client       │
-                    │   (Vite + TypeScript)   │
-                    └───────────┬─────────────┘
-                                │ (Axios HTTP API)
-                                ▼
-                    ┌─────────────────────────┐
-                    │     Express Server      │
-                    │     (Node.js REST)      │
-                    └───────────┬─────────────┘
-                                │ (Mongoose ODM)
-                                ▼
-                    ┌─────────────────────────┐
-                    │      MongoDB Atlas      │
-                    │    (Cloud Database)     │
-                    └─────────────────────────┘
-```
-
-### Directory Structure
-
-```
-e-commerce/
-├── backend/
-│   ├── src/
-│   │   ├── config/          # Environment & Database Configurations
-│   │   ├── controller/      # API Controllers (MVC Controllers)
-│   │   ├── db/              # Seeding & Connection Logic
-│   │   ├── domain/          # Enums and Constants
-│   │   ├── middlewares/     # Authentication & Security Middlewares
-│   │   ├── model/           # Mongoose Models (Schemas)
-│   │   ├── routes/          # Express API Route Mappings
-│   │   ├── service/         # Business Logic Layer
-│   │   └── utils/           # JWT, Cloudinary, and Mail Utilities
-│   └── .env                 # Environment Secret Keys
-│
-└── frontend/
-    ├── src/
-    │   ├── admin/           # Admin Dashboard Pages & Components
-    │   ├── customer/        # Customer Navbar, Cart, Order, Auth, Profile
-    │   ├── seller/          # Seller Dashboard, Earnings, Listings
-    │   ├── context/         # Auth, Cart, Wishlist Context providers
-    │   └── App.tsx          # Application Routes & Layouts
-```
+- 📌 [Overview](#-overview)
+- 🏗️ [System Architecture](#️-system-architecture-cloud--devsecops)
+- ☁️ [AWS Cloud Architecture](#️-aws-cloud-architecture)
+- 🛡️ [DevSecOps CI/CD Pipeline](#️-devsecops-cicd-pipeline)
+- 🎨 [Application Interfaces](#-application-interfaces)
+- ⚡ [Key Features](#-key-features)
+- 🛠️ [Technology Stack](#️-technology-stack)
+- 🔐 [Role-Based Access Control (RBAC)](#-role-based-access-control-rbac)
+- 🔑 [Demo Credentials](#-demo-credentials)
+- 🚀 [Quick Start & Setup](#-quick-start--setup)
+- 🐳 [Docker Deployment](#-docker-deployment)
+- 📈 [Current vs Future Roadmap](#-current-vs-future-roadmap)
+- 💼 [Resume Highlights](#-resume-highlights)
 
 ---
 
-## 2. Core Technology Stack
+## 📌 Overview
 
-- **Frontend Core:** React 19 (TypeScript), Vite 6, Tailwind CSS, Material UI (MUI v6)
-- **Backend Core:** Node.js, Express 5, Mongoose 9, Nodemon
-- **Authentication:** JSON Web Tokens (JWT), bcrypt (10 rounds password hashing)
-- **Database:** MongoDB Atlas (Mongoose ODM)
-- **Services Integration:** Cloudinary API (Image Storage), Razorpay SDK (Payments), Nodemailer (OTP Mail Delivery)
-- **Security Middlewares:** Helmet (HTTP header security), CORS, Express Mongo Sanitize (NoSQL query sanitizer)
+Inba Mart connects customers, sellers, and platform administrators in a secure multi-tenant marketplace built with React 19, Node.js 22, Docker, AWS Multi-AZ infrastructure, and automated GitHub Actions security controls.
 
----
-
-## 3. Dynamic Security Architecture (OWASP Top 10)
-
-The application implements protective measures corresponding to the OWASP Top 10 vulnerabilities list:
-
-1. **A01:2021-Broken Access Control:** Protected via `adminMiddleware` and authorization headers. Custom checks enforce roles (`ROLE_CUSTOMER`, `ROLE_SELLER`, `ROLE_ADMIN`). Users cannot write/modify elements belonging to other identifiers.
-2. **A02:2021-Cryptographic Failures:** All passwords are salted and hashed using `bcrypt` before storage. Temporary recovery OTP codes are hashed in the database. Successful checks return a short-lived (10-minute) JWT reset token.
-3. **A03:2021-Injection:** Handled via `mongoSanitize()` middleware, stripping incoming requests of operators starting with `$` and `.` to defend against NoSQL injection vectors.
-4. **A04:2021-Insecure Design:** Separated business logic (Service Layer) from transport protocols (Controller Layer) to ensure secure operations.
-5. **A05:2021-Security Misconfiguration:** `helmet()` is configured to secure Express headers (XSS, Sniffing, Clickjacking protection). CORS settings are strictly managed via environment parameters rather than allowing open wildcards.
-6. **A07:2021-Identification and Authentication Failures:** Armed with verification rate limiting. Restricts verification OTP requests and locks accounts/records after 5 unsuccessful verification trials. Enforces a 60-second cooldown period between resends.
-7. **A08:2021-Software and Data Integrity Failures:** Inputs are processed inside validation layers. TypeScript compiler and strict configuration are enforced on frontend builds.
+- 🛍️ **Storefront:** Browse products, search catalog, manage cart, checkout with Razorpay.
+- 🏪 **Seller Portal:** Merchant onboarding, product inventory management, order fulfillment, sales reports.
+- 🔑 **Admin Center:** Vendor verification approvals, coupon management, platform governance.
+- 🛡️ **DevSecOps:** Automated SAST (`Semgrep`), Secret Scanning (`Gitleaks`), Container Auditing (`Trivy`), DAST (`OWASP ZAP`), and OIDC authentication.
+- ☁️ **AWS Cloud:** Multi-AZ private VPC subnets, ALB load balancing, EC2 Auto Scaling, S3 VPC Endpoint, Secrets Manager, and SSM Session Manager.
 
 ---
 
-## 4. API Reference Documentation
+## 🏗️ System Architecture (Cloud + DevSecOps)
 
-### 4.1 Authentication & Recovery (`/auth`)
+Below is the complete enterprise end-to-end architecture combining application tiers, CI/CD security gates, AWS network isolation, container registry, and cloud database integration.
 
-- **`POST /auth/signup`**
-  Registers a new customer. Requires `fullName`, `email`, `mobile`, `password`.
-- **`POST /auth/login`**
-  Validates credentials. Returns user details and JWT Token.
-- **`POST /auth/forgot-password`**
-  Requests password recovery. Enforces rate limits and emails a 6-digit verification OTP.
-- **`POST /auth/verify-reset-otp`**
-  Validates OTP. Returns a short-lived JWT reset token. Lockout is activated on 5 invalid attempts.
-- **`POST /auth/reset-password`**
-  Accepts reset token and updates the customer's password. Checks complexity parameters on input.
-
-### 4.2 Product Search & Management (`/products`)
-
-- **`GET /products`**
-  Retrieves catalog matching filters (`category`, `color`, `minPrice`, `maxPrice`, `sort`).
-- **`GET /products/search?q={query}`**
-  Returns search matching products. Operates autocomplete recommendations.
-- **`GET /products/{productId}`**
-  Fetches details of a single product.
-
-### 4.3 Cart & Order Operations (`/api/cart`, `/api/orders`)
-
-- **`GET /api/cart`**
-  Retrieves items in the user's shopping cart.
-- **`PUT /api/cart/add`**
-  Adds a product listing to the active cart.
-- **`POST /api/orders`**
-  Creates checkout order matching customer delivery address.
-- **`GET /api/orders/{orderId}`**
-  Details payment status and delivery progress of an order.
-
-### 4.4 Seller Portal (`/sellers`, `/api/sellers/product`, `/api/sellers/orders`)
-
-- **`POST /sellers/signup`**
-  Onboards a new merchant. Requires GSTIN, bank parameters, and company details.
-- **`POST /sellers/login`**
-  Merchant login controller.
-- **`POST /api/sellers/product`**
-  Adds new product inventory. Seller ID is extracted from the authorization context.
-- **`GET /api/sellers/orders`**
-  Queries orders containing the merchant's items.
-- **`PATCH /api/sellers/orders/{itemId}/status`**
-  Updates fulfillment stages (PENDING, PLACED, SHIPPED, DELIVERED).
-
-### 4.5 Admin Controllers (`/admin`)
-
-- **`GET /admin/sellers`**
-  Queries list of sellers waiting for authorization check.
-- **`PATCH /admin/sellers/{sellerId}/status`**
-  Approve/Suspend vendor permissions.
-- **`POST /admin/coupons`**
-  Creates general discount codes.
-- **`DELETE /admin/coupons/{id}`**
-  Removes a coupon code.
+![Enterprise End-to-End Architecture](docs/images/end-to-end-architecture.png)
 
 ---
 
-## 5. Role-Based Access Control (RBAC) Matrix
+## ☁️ AWS Cloud Architecture
 
-Access levels are defined using user roles:
+Hosted in **AWS Mumbai (`ap-south-1`)** across 2 Availability Zones (`AZ-A` & `AZ-B`) with strict private subnet isolation.
 
-| Access Privilege | ROLE_CUSTOMER | ROLE_SELLER | ROLE_ADMIN | Guest |
+![AWS Cloud Architecture](docs/images/aws-cloud-architecture.png)
+
+### 🔑 Key Infrastructure Components
+- 🌐 **VPC (`10.0.0.0/16`):** Public subnets host ALB & NAT Gateways; private subnets host EC2 application nodes.
+- ⚖️ **Application Load Balancer (ALB):** Internet-facing entry point balancing HTTP traffic across target instances.
+- 🔄 **Auto Scaling Group (`inba-mart-backend-asg`):** Auto-replaces degraded instances across AZs with zero downtime.
+- 🔗 **S3 VPC Gateway Endpoint:** Directly routes S3 image traffic over internal AWS network, eliminating NAT data fees.
+- 🔐 **AWS Secrets Manager & SSM:** Environment variables injected at runtime; SSH-free Session Manager administration.
+
+---
+
+## 🛡️ DevSecOps CI/CD Pipeline
+
+Automated pipeline in `.github/workflows/devsecops.yml` running security checks before pushing container images or triggering ASG updates.
+
+![DevSecOps CI/CD Pipeline](docs/images/devsecops-pipeline-architecture.png)
+
+### 🔒 Security Gates
+1. 📦 `npm audit`: Dependency vulnerability audit (`--audit-level=high`).
+2. 🔍 `Semgrep`: Static Application Security Testing (SAST).
+3. 🔑 `Gitleaks`: Hardcoded secret and API key detection.
+4. 🐳 `Trivy`: Docker container CVE vulnerability scan (`CRITICAL`/`HIGH`).
+5. ⚡ `OWASP ZAP`: Dynamic Application Security Testing (DAST) baseline scan on live ALB.
+6. 🔑 `AWS OIDC`: Passwordless IAM authentication replacing long-lived secret keys.
+
+---
+
+## 🎨 Application Interfaces
+
+### 🛍️ Storefront Hero & Product Discovery
+![Storefront Hero Banner](docs/images/storefront-hero.png)
+
+### 🏷️ Deals of the Day & Category Showcase
+![Storefront Grid and Deals](docs/images/storefront-deals.png)
+
+---
+
+## ⚡ Key Features
+
+| Category | Feature | Description |
+| :--- | :--- | :--- |
+| 🛒 **Application** | Multi-Vendor Commerce | Customer shopping, seller onboarding, product management, order processing |
+| 💳 **Payments & Media** | Razorpay & Cloudinary | Digital checkout processing & Cloudinary image asset uploads |
+| 🛡️ **Security** | OWASP Mitigation | Bcrypt hashing, short-lived JWT, Helmet headers, Mongo sanitizer, CORS |
+| 🔑 **Authentication** | OIDC & RBAC | Passwordless AWS IAM role assumption + Granular Customer/Seller/Admin access |
+| ☁️ **Cloud Infrastructure** | High Availability | Multi-AZ private subnets, ALB target groups, zero-downtime ASG refresh |
+| ⚙️ **DevSecOps** | Continuous Security | Automated SAST, Secret Scanning, Container Audits & DAST in GitHub Actions |
+
+---
+
+## 🛠️ Technology Stack
+
+| Layer | Technologies |
+| :--- | :--- |
+| 💻 **Frontend** | React 19, TypeScript, Vite, Tailwind CSS v4, Material UI v6, Axios, React Router v7 |
+| ⚙️ **Backend** | Node.js v22 (Alpine), Express 5, Mongoose 9, Body-Parser, Multer, Nodemailer |
+| 🍃 **Database** | MongoDB Atlas (Cloud NoSQL Database) |
+| 🔐 **Auth & Security** | JWT, Bcrypt, Helmet, Express Mongo Sanitize, Rate Limiter |
+| 🐳 **Containerization** | Docker (Multi-stage build based on `node:22-alpine`) |
+| 🚀 **CI/CD** | GitHub Actions (`devsecops.yml`) |
+| ☁️ **AWS Services** | VPC, ALB, ASG, ECR, IAM OIDC, Secrets Manager, SSM, S3, CloudFront, S3 VPC Endpoint, NAT Gateway |
+| 🛡️ **DevSecOps Tools** | Semgrep, Gitleaks, Trivy, OWASP ZAP, npm audit |
+
+---
+
+## 🔐 Role-Based Access Control (RBAC)
+
+| Action / Route | `ROLE_CUSTOMER` | `ROLE_SELLER` | `ROLE_ADMIN` | Guest |
 | :--- | :---: | :---: | :---: | :---: |
-| Browse Products & Search | Yes | Yes | Yes | Yes |
-| Place Orders & Add to Cart | Yes | No | No | No |
-| Add & Manage Product Listings | No | Yes | No | No |
-| View Earnings & Seller Reports | No | Yes | No | No |
-| Approve Sellers & Suspend accounts | No | No | Yes | No |
-| Create & Delete Global Coupons | No | No | Yes | No |
+| 🔍 **Browse & Search Products** | ✅ | ✅ | ✅ | ✅ |
+| 🛒 **Cart & Place Orders** | ✅ | ❌ | ❌ | ❌ |
+| 📦 **Manage Product Inventory** | ❌ | ✅ | ❌ | ❌ |
+| 📊 **View Earnings & Reports** | ❌ | ✅ | ❌ | ❌ |
+| 👮 **Approve / Suspend Sellers** | ❌ | ❌ | ✅ | ❌ |
+| 🎟️ **Manage Platform Coupons** | ❌ | ❌ | ✅ | ❌ |
 
 ---
 
-## 6. Setup & Dynamic Credentials Configuration
+## 🔑 Demo Credentials
 
-### 6.1 Backend Configuration (`backend/.env`)
+| Role | Email | Password |
+| :--- | :--- | :--- |
+| 👤 **User / Customer** | `aws@gmail.com` | `aws@123` |
+| 👑 **Super Admin** | `admin@inbamart.com` | `adminpassword` |
 
-Configure the backend variables inside `backend/.env`. The application seeds the default administrator account dynamically on startup using these settings:
+---
 
+## 🚀 Quick Start & Setup
+
+### 1️⃣ Clone & Configure Environment
+```bash
+git clone https://github.com/inbavarunan/Inba-Mart-MultiVendor.git
+cd Inba-Mart-MultiVendor
+```
+
+Create `backend/.env`:
 ```env
-MONGODB_URI=your_mongodb_uri
 PORT=5000
+MONGODB_URI=<your-mongodb-uri>
+JWT_SECRET=<your-jwt-secret>
+ADMIN_EMAIL=<your-admin-email>
+ADMIN_PASSWORD=<your-admin-password>
+RAZORPAY_KEY_ID=<your-razorpay-id>
+RAZORPAY_KEY_SECRET=<your-razorpay-secret>
+EMAIL_USER=<your-email>
+EMAIL_PASS=<your-app-password>
+CLOUDINARY_CLOUD_NAME=<your-cloudinary-name>
+CLOUDINARY_API_KEY=<your-cloudinary-key>
+CLOUDINARY_API_SECRET=<your-cloudinary-secret>
+```
 
-# Seeding dynamic credentials (OWASP Best Practice)
-ADMIN_EMAIL=your_admin_email
-ADMIN_PASSWORD=your_admin_password
+### 2️⃣ Run Locally
 
-# External Service Keys
-RAZORPAY_KEY_ID=your_razorpay_key_id
-RAZORPAY_KEY_SECRET=your_razorpay_key_secret
-EMAIL_USER=your_email_user
-EMAIL_PASS=your_email_app_password
-CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
-CLOUDINARY_API_KEY=your_cloudinary_api_key
-CLOUDINARY_API_SECRET=your_cloudinary_api_secret
+**Backend:**
+```bash
+cd backend
+npm install
+npm run dev
+# Running on http://localhost:5000
+```
+
+**Frontend:**
+```bash
+cd frontend
+npm install
+npm run dev
+# Running on http://localhost:5173
 ```
 
 ---
 
-## 7. Testing & Verification Guide
+## 🐳 Docker Deployment
 
-### 7.1 Super Admin Credentials & Verification Process
+### Build & Run Container
+```bash
+# Build production image
+docker build -t inba-mart-backend:local ./backend
 
-To log in as the administrative user:
-1. Open the login dialog in the Navbar control.
-2. Enter the configured dynamic credentials (from your `.env` file):
-   - **Email:** `admin@inbamart.com` (or your configured `ADMIN_EMAIL`)
-   - **Password:** `adminpassword` (or your configured `ADMIN_PASSWORD`)
-3. Upon submission, the user section on the navigation bar reveals the `"Admin Dashboard"` entry.
-4. Click `"Admin Dashboard"` to verify vendor status, view coupon stats, and review product approvals.
+# Run container
+docker run -d -p 5000:5000 --env-file backend/.env --name inba-mart-app inba-mart-backend:local
 
-### 7.2 Running the Application
+# Check logs
+docker logs -f inba-mart-app
+```
 
-1. **Start the Backend System:**
-   ```bash
-   cd backend
-   npm run dev
-   ```
-2. **Start the Frontend System:**
-   ```bash
-   cd frontend
-   npm run dev
-   ```
-3. Open `http://localhost:5173` to test search dropdown queries, password recovery otp flows, and responsive UI scaling.
+---
+
+## 📈 Current vs Future Roadmap
+
+### ✅ Currently Implemented (Phase 1)
+- 🟢 Full-Stack MERN application with React 19 & Express 5
+- 🟢 Multi-AZ AWS Cloud Infrastructure (VPC, ALB, ASG, Private Subnets)
+- 🟢 Multi-stage Docker containerization (`node:22-alpine`)
+- 🟢 DevSecOps pipeline with Semgrep, Gitleaks, Trivy, OWASP ZAP & npm audit
+- 🟢 Passwordless AWS IAM authentication via GitHub OIDC
+- 🟢 AWS Secrets Manager & SSM Session Manager integration
+
+### 🔮 Planned Enhancements (Phase 2)
+- 🟡 Terraform / OpenTofu Infrastructure-as-Code codification
+- 🟡 Route 53 Custom Domain & ACM HTTPS TLS termination on ALB
+- 🟡 AWS WAF web application firewall rules
+- 🟡 CloudWatch centralized log streaming & automated alarm rollbacks
+
+---
+
+## 💼 Project Highlights
+
+- ☁️ **AWS Cloud Architecture:** Architected multi-AZ high-availability infrastructure on AWS (`ap-south-1`) with private subnet isolation, ALB load balancing, and EC2 Auto Scaling.
+- 🛡️ **DevSecOps & CI/CD Pipeline:** Built automated GitHub Actions pipeline integrating SAST (`Semgrep`), secret auditing (`Gitleaks`), container scanning (`Trivy`), and DAST (`OWASP ZAP`).
+- ⚡ **Zero-Downtime Deployments:** Implemented zero-downtime ASG Instance Refreshes with health checks (`MinHealthyPercentage: 100`) and active-refresh conflict prevention.
+- 🔑 **Passwordless Cloud Security:** Federated GitHub Actions with AWS IAM via OIDC for credential-free CI/CD deployments.
+- 💻 **Full-Stack Development:** Developed RESTful Express API with MongoDB Atlas and React 19 frontend supporting RBAC (`ROLE_CUSTOMER`, `ROLE_SELLER`, `ROLE_ADMIN`).
