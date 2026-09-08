@@ -122,7 +122,47 @@ jobs:
           aws-region: ap-south-1
 
       - name: Start ASG Instance Refresh
+        id: refresh
         run: |
-          aws autoscaling start-instance-refresh \
+          REFRESH_ID=$(aws autoscaling start-instance-refresh \
             --auto-scaling-group-name inba-mart-backend-asg \
-            --preferences '{"MinHealthyPercentage":100,"InstanceWarmup":300}'
+            --preferences '{"MinHealthyPercentage":100,"InstanceWarmup":300}' \
+            --query 'InstanceRefreshId' \
+            --output text)
+
+          echo "REFRESH_ID=$REFRESH_ID" >> "$GITHUB_ENV"
+          echo "Started Instance Refresh: $REFRESH_ID"
+
+      - name: Wait for ASG Instance Refresh
+        run: |
+          echo "Waiting for Instance Refresh: $REFRESH_ID"
+
+          while true; do
+            STATUS=$(aws autoscaling describe-instance-refreshes \
+              --auto-scaling-group-name inba-mart-backend-asg \
+              --instance-refresh-ids "$REFRESH_ID" \
+              --query 'InstanceRefreshes[0].Status' \
+              --output text)
+
+            PROGRESS=$(aws autoscaling describe-instance-refreshes \
+              --auto-scaling-group-name inba-mart-backend-asg \
+              --instance-refresh-ids "$REFRESH_ID" \
+              --query 'InstanceRefreshes[0].PercentageComplete' \
+              --output text)
+
+            echo "Status: $STATUS | Progress: ${PROGRESS}%"
+
+            case "$STATUS" in
+              Successful)
+                echo "Instance Refresh completed successfully."
+                break
+                ;;
+              Failed|Cancelled|RollbackFailed|RollbackSuccessful)
+                echo "Instance Refresh failed with status: $STATUS"
+                exit 1
+                ;;
+              *)
+                sleep 30
+                ;;
+            esac
+          done
